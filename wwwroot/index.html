@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>GITHUB ISSUES WEB TOOL</title>
+        <meta charset="utf-8">
+        <!--Echarts js-->
+        <script src="http://echarts.baidu.com/dist/echarts.min.js"></script>
+        <script src="js/github_api.js"></script>
+    </head>
+    <body>
+        <div id="head">
+            <h1>GITHUB ISSUES WEB TOOL</h1>
+        </div>
+        <div id="url"><h2>URL</h2></div>
+        <div id="data"><p>data</p></div>
+        <script>
+        issue.callback = function (issue) 
+        {
+            var title = "";
+            for (var i in issue) {
+                title += "<a href=\"" + issue[i].html_url + "\">"+ issue[i].title + "</a>" +"<br>";
+            } 
+            document.getElementById("data").innerHTML = title;
+        }
+        issue.get("");
+        </script>
+    </body>
+</html>
