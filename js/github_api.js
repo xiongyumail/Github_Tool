@@ -64,24 +64,31 @@ var issue = {
     timesince: "",
     callback: undefined,
     issue_data: [],
-    
+    type_list: ["gpio","uart","i2c","spi","pwm","adc","i2s","rmt","ledc","pcnt","touch","sigmadelta"],
     ondata: function (data)
     {
         var json_data = JSON.parse(data);
         
         if (json_data.length != 0) {
-            console.log(json_data[0].created_at);
-            if (json_data[0].created_at <= issue.timesince) {
-                issue.callback(issue.issue_data); 
-            } else {
+            if (json_data[json_data.length - 1].created_at > issue.timesince) {
                 issue.issue_data = issue.issue_data.concat(json_data);
                 github.parameters.page.value = (issue.page++).toString(10);
                 github.config("/espressif/esp-idf",github.parameters);
-                github.get(issue.ondata);
+                github.get(issue.ondata); 
+            } else {
+                for (var i=0; i<json_data.length; i++) {    //search for some timesince.
+                    if (json_data[i].created_at > issue.timesince) {
+                        issue.issue_data.push(json_data[i]);
+                    } else {
+                        break;
+                    }
+                }
+                console.log("last time issue: " + json_data[i].created_at);
+                issue.callback(issue.select(issue.type_list,issue.issue_data));
             }
         } else {
             console.log("read all issues\n");
-            issue.callback(issue.issue_data); 
+            issue.callback(issue.select(issue.type_list,issue.issue_data));
         }
 
     },
@@ -91,5 +98,16 @@ var issue = {
         github.parameters.page.value = (issue.page++).toString(10);
         github.config("/espressif/esp-idf",github.parameters);
         github.get(this.ondata);
+    },
+    select: function (list,issue) {
+        for (var t in issue) {
+            issue[t].type = [];
+            for (var li in list) {
+                if (RegExp(list[li],"i").test(issue[t].title) == true) {
+                    issue[t].type.push(list[li]);
+                }
+            }
+        }
+        return issue;
     }
 }

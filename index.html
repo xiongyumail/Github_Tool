@@ -18,11 +18,11 @@
         {
             var title = "";
             for (var i in issue) {
-                title += "<a href=\"" + issue[i].html_url + "\">"+ issue[i].title + "</a>" +"<br>";
+                title += issue[i].type + "|" + "<a href=\"" + issue[i].html_url + "\">"+ issue[i].title + "</a>" + "|" + issue[i].created_at + "|" +issue[i].comments + "|" + issue[i].state +"<br>";
             } 
             document.getElementById("data").innerHTML = title;
         }
-        issue.get("");
+        issue.get("2018-06-01");
         </script>
     </body>
 </html>
