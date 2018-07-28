@@ -95,6 +95,8 @@ var issue = {
     get: function (timesince)
     {
         this.timesince = timesince;
+        issue.page = 1;
+        issue.issue_data = [];
         github.parameters.page.value = (issue.page++).toString(10);
         github.config("/espressif/esp-idf",github.parameters);
         github.get(this.ondata);

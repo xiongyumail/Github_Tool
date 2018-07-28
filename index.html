@@ -6,23 +6,43 @@
         <!--Echarts js-->
         <script src="http://echarts.baidu.com/dist/echarts.min.js"></script>
         <script src="js/github_api.js"></script>
+        <script src="js/charts.js"></script>
     </head>
     <body>
         <div id="head">
             <h1>GITHUB ISSUES WEB TOOL</h1>
+            <h2>
+                Time: <input id="time">
+                <button type="button" onclick="getissue()">提交</button>
+            </h2>
         </div>
+        <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+        <div id="main" style="width: 600px;height:400px;"></div>
+        <!-- 
         <div id="url"><h2>URL</h2></div>
-        <div id="data"><p>data</p></div>
+        <div id="data"><p>data</p></div> 
+        -->
         <script>
-        issue.callback = function (issue) 
+        var myChart = echarts.init(document.getElementById('main'));
+        issue.callback = function (data) 
         {
-            var title = "";
-            for (var i in issue) {
-                title += issue[i].type + "|" + "<a href=\"" + issue[i].html_url + "\">"+ issue[i].title + "</a>" + "|" + issue[i].created_at + "|" +issue[i].comments + "|" + issue[i].state +"<br>";
-            } 
-            document.getElementById("data").innerHTML = title;
+            // var title = "";
+            // for (var i in data) {
+            //     title += data[i].type + "|" + "<a href=\"" + data[i].html_url + "\">"+ data[i].title + "</a>" + "|" + data[i].created_at + "|" +data[i].comments + "|" + data[i].state +"<br>";
+            // } 
+            // document.getElementById("data").innerHTML = title;
+            myChart.hideLoading();
+            myChart.setOption(charts.analysis(data,issue.type_list,issue.timesince));
         }
-        issue.get("2018-06-01");
+        function getissue () 
+        {
+            var time;
+            var _reTimeReg = /^(?:19|20)[0-9][0-9]-(?:(?:0[1-9])|(?:1[0-2]))-(?:(?:[0-2][1-9])|(?:[1-3][0-1])) (?:(?:[0-2][0-3])|(?:[0-1][0-9])):[0-5][0-9]:[0-5][0-9]$/;
+            time = document.getElementById("time").value;
+            issue.get(time);
+            myChart.setOption(charts.option);
+            myChart.showLoading();
+        }
         </script>
     </body>
 </html>
