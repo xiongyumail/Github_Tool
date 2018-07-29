@@ -64,7 +64,7 @@ var issue = {
     timesince: "",
     callback: undefined,
     issue_data: [],
-    type_list: ["gpio","uart","i2c","spi","pwm","adc","i2s","rmt","ledc","pcnt","touch","sigmadelta"],
+    type_list: ["gpio","uart","i2c","spi","pwm","adc","i2s","rmt","ledc","pcnt","touch","sigmadelta","other"],
     ondata: function (data)
     {
         var json_data = JSON.parse(data);
@@ -84,6 +84,7 @@ var issue = {
                     }
                 }
                 console.log("last time issue: " + json_data[i].created_at);
+                issue.timesince = json_data[i].created_at;
                 issue.callback(issue.select(issue.type_list,issue.issue_data));
             }
         } else {
@@ -102,12 +103,16 @@ var issue = {
         github.get(this.ondata);
     },
     select: function (list,issue) {
+        var li;
         for (var t in issue) {
             issue[t].type = [];
-            for (var li in list) {
+            for (li = 0; li < (list.length-1); li++) {
                 if (RegExp(list[li],"i").test(issue[t].title) == true) {
                     issue[t].type.push(list[li]);
                 }
+            }
+            if (issue[t].type.length == 0) {
+                issue[t].type = ["other"]; 
             }
         }
         return issue;

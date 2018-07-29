@@ -12,18 +12,26 @@
         <div id="head">
             <h1>GITHUB ISSUES WEB TOOL</h1>
             <h2>
-                Time: <input id="time">
-                <button type="button" onclick="getissue()">提交</button>
+                Time: <input id="time" value="">
+                <button type="button" onclick="gettime()">提交</button>
             </h2>
         </div>
         <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
         <div id="main" style="width: 600px;height:400px;"></div>
+        <div id="k" style="width: 1000px;height:600px;"></div>
         <!-- 
         <div id="url"><h2>URL</h2></div>
         <div id="data"><p>data</p></div> 
         -->
         <script>
+        var inter;
         var myChart = echarts.init(document.getElementById('main'));
+        var kChart = echarts.init(document.getElementById('k'));
+        var time = new Date();
+        time.setDate(time.getDate()-7);
+        charts.option2.xAxis.data = charts.getDatelist(time,new Date());
+        document.getElementById("time").value = time.toJSON();
+        getissue (time.toJSON());
         issue.callback = function (data) 
         {
             // var title = "";
@@ -33,15 +41,121 @@
             // document.getElementById("data").innerHTML = title;
             myChart.hideLoading();
             myChart.setOption(charts.analysis(data,issue.type_list,issue.timesince));
+            inter = setInterval(function () {
+                var dataLen = charts.option.series[0].data.length;
+                // 取消之前高亮的图形
+                myChart.dispatchAction({
+                    type: 'downplay',
+                    seriesIndex: 0,
+                    dataIndex: charts.currentIndex
+                });
+                charts.currentIndex = (charts.currentIndex + 1) % dataLen;
+                // 高亮当前图形
+                myChart.dispatchAction({
+                    type: 'highlight',
+                    seriesIndex: 0,
+                    dataIndex: charts.currentIndex
+                });
+                // 显示 tooltip
+                myChart.dispatchAction({
+                    type: 'showTip',
+                    seriesIndex: 0,
+                    dataIndex: charts.currentIndex
+                });
+            }, 1000);
+            charts.option2.legend.data = issue.type_list;
+            var series = [];
+            for (var di=0; di<issue.type_list.length; di++) {
+                series[di] = JSON.parse(JSON.stringify(charts.option2.series[0]));
+                series[di].name = issue.type_list[di];
+            }
+            calissue (data,charts.timebasedata,issue.type_list);
+            var increase_data = charts.timebasedata.map(function (item) {
+                var temp = [];
+                for (var i in item[1]) {
+                    temp[i] = item[1][i] - item[2][i];
+                }
+                return temp;
+            });
+            
+            for (var i in issue.type_list) {
+                var type_increase_data = increase_data.map(function (item) {
+                    return item[i];
+                });
+                var increase_sum_data = JSON.parse(JSON.stringify(Array(type_increase_data.length)));
+                for (var j = 0; j < type_increase_data.length; j++) {
+                    for (var k = 0; k <= j; k++) {
+                        increase_sum_data[j] += type_increase_data[k];
+                    }
+                    
+                }
+                console.log(increase_sum_data);
+                series[i].data = JSON.parse(JSON.stringify(increase_sum_data));
+            }
+            
+            charts.option2.series = series;
+            // charts.option2.series[0].data = increase_sum_data;
+            kChart.hideLoading();
+            kChart.setOption(charts.option2);
         }
-        function getissue () 
+        function getissue (time) 
+        {
+            issue.get(time);
+            myChart.setOption(charts.option);
+            myChart.showLoading();
+            kChart.setOption(charts.option2);
+            kChart.showLoading();
+            
+        }
+        function gettime ()
         {
             var time;
             var _reTimeReg = /^(?:19|20)[0-9][0-9]-(?:(?:0[1-9])|(?:1[0-2]))-(?:(?:[0-2][1-9])|(?:[1-3][0-1])) (?:(?:[0-2][0-3])|(?:[0-1][0-9])):[0-5][0-9]:[0-5][0-9]$/;
             time = document.getElementById("time").value;
-            issue.get(time);
-            myChart.setOption(charts.option);
-            myChart.showLoading();
+            clearInterval(inter);
+            getissue (time);
+            charts.option2.xAxis.data = charts.getDatelist(new Date(time),new Date());
+        }
+        function calissue (issue,data,list)
+        {
+            var time;
+            var timebase = "";
+            data.map(function (item) {
+                for (var li in list) {
+                    item[1][li] = 0;
+                    item[2][li] = 0;
+                }
+            });
+            for (var i in issue) {
+                time = new Date(issue[i].created_at);
+                timebase = time.getUTCFullYear() + '/' + (time.getUTCMonth()+1) + '/' + time.getUTCDate();
+                data.map(function (item) {
+                    if (item[0] === timebase) {
+                        for (var li in list) {
+                            if (issue[i].type.includes(list[li]) == true) {
+                                item[1][li]++; 
+                            }
+                        }
+                    }
+                });
+            }
+            for (var i in issue) {
+                if (issue[i].closed_at == null) {
+                    continue;
+                }
+                time = new Date(issue[i].closed_at);
+                timebase = time.getUTCFullYear() + '/' + (time.getUTCMonth()+1) + '/' + time.getUTCDate();
+                data.map(function (item) {
+                    if (item[0] === timebase) {
+                        for (var li in list) {
+                            if (issue[i].type.includes(list[li]) == true) {
+                                item[2][li]++; 
+                            }
+                        }
+                    }
+                });
+            }
+            return data;
         }
         </script>
     </body>
