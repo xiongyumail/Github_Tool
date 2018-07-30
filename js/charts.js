@@ -32,7 +32,7 @@ var charts = {
             {
                 name:'driver',
                 type:'pie',
-                radius : [30, 110],
+                radius : [50, 160],
                 center : ['50%', '50%'],
                 roseType : 'area',
                 data:[
