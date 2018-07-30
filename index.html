@@ -17,28 +17,78 @@
             </h2>
         </div>
         <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
-        <div id="main" style="width: 600px;height:400px;"></div>
-        <div id="k" style="width: 1000px;height:600px;"></div>
+        <div id="piechart" style="width: 600px;height:400px;"></div>
+        <div id="kchart" style="width: 1000px;height:600px;"></div>
+        <div id="list"></div>
         <!-- 
         <div id="url"><h2>URL</h2></div>
         <div id="data"><p>data</p></div> 
         -->
         <script>
         var inter;
-        var myChart = echarts.init(document.getElementById('main'));
-        var kChart = echarts.init(document.getElementById('k'));
+        var myChart = echarts.init(document.getElementById('piechart'));
+        var kChart = echarts.init(document.getElementById('kchart'));
         var time = new Date();
-        time.setDate(time.getDate()-7);
+        time.setDate(time.getDate()-30);
         charts.option2.xAxis.data = charts.getDatelist(time,new Date());
         document.getElementById("time").value = time.toJSON();
         getissue (time.toJSON());
+
+                //获取容器div的引用
+        var container=document.getElementById("list");
+        //创建表格对象
+        var _table=document.createElement("table");
+
+        //设置表格属性
+        _table.setAttribute("border","1");
+        _table.setAttribute("borderColor","black");
+        _table.setAttribute("width","200");
+
         issue.callback = function (data) 
         {
-            // var title = "";
-            // for (var i in data) {
-            //     title += data[i].type + "|" + "<a href=\"" + data[i].html_url + "\">"+ data[i].title + "</a>" + "|" + data[i].created_at + "|" +data[i].comments + "|" + data[i].state +"<br>";
-            // } 
-            // document.getElementById("data").innerHTML = title;
+            var title = "";
+            for (var i in data) {
+                if (data[i].type[0] !== 'other')
+                    title += data[i].type + "|" + "<" + data[i].html_url + ">" + "|" + data[i].title + "|" + data[i].created_at + "|" +data[i].comments + "|" + data[i].state +"  \n";
+            } 
+            console.log(title);
+            // document.getElementById("list").innerHTML = title;
+
+            //创建5行
+            for(var i=0;i<data.length;i++){
+                var _tr=_table.insertRow(i);
+
+                //创建4列
+                for(var j=0;j<6;j++){
+                var _td=_tr.insertCell(j);
+                var str = "";
+                switch (j) {
+                        case 0: 
+                            str =  data[i].type;
+                            break;
+                        case 1:
+                            str =  data[i].html_url;
+                            break;
+                        case 2:
+                            str =  data[i].title;
+                            break;
+                        case 3:
+                            str =  data[i].created_at;
+                            break;
+                        case 4:
+                            str =  data[i].comments;
+                            break;
+                        case 5:
+                            str =  data[i].state;
+                            break;
+                    }
+                var _tn=document.createTextNode(str);
+                _td.appendChild(_tn);
+                }
+            }
+            //将表格显示于页面
+            container.appendChild(_table);
+
             myChart.hideLoading();
             myChart.setOption(charts.analysis(data,issue.type_list,issue.timesince));
             inter = setInterval(function () {
