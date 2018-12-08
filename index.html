@@ -143,8 +143,8 @@
                 console.log(increase_sum_data);
                 series[i].data = JSON.parse(JSON.stringify(increase_sum_data));
             }
-            
             charts.option2.series = series;
+            console.log(charts.option2.series);
             // charts.option2.series[0].data = increase_sum_data;
             kChart.hideLoading();
             kChart.setOption(charts.option2);

@@ -110,7 +110,6 @@ var charts = {
                 name: 'MA5',
                 type: 'line',
                 data: [],
-                stack: '总量',
                 smooth: true,
                 lineStyle: {
                     normal: {opacity: 0.5}
