@@ -50,7 +50,7 @@
             var title = "";
             for (var i in data) {
                 if (data[i].type[0] !== 'other')
-                    title += data[i].type + "|" + "<" + data[i].html_url + ">" + "|" + data[i].title + "|" + data[i].created_at + "|" +data[i].comments + "|" + data[i].state +"  \n";
+				title += data[i].type + "|" + "<" + data[i].html_url + ">" + "|" + data[i].title + "|" + data[i].created_at + "|" + data[i].updated_at + "|" + data[i].closed_at + "|" +data[i].comments + "|" + data[i].state +"  \n";
             } 
             console.log(title);
             // document.getElementById("list").innerHTML = title;
