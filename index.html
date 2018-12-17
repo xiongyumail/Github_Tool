@@ -48,11 +48,26 @@
         issue.callback = function (data) 
         {
             var title = "";
+            var title_open = "";
+            var count = 0;
             for (var i in data) {
-                if (data[i].type[0] !== 'other')
-				title += data[i].type + "|" + "<" + data[i].html_url + ">" + "|" + data[i].title + "|" + data[i].created_at + "|" + data[i].updated_at + "|" + data[i].closed_at + "|" +data[i].comments + "|" + data[i].state +"  \n";
+                if (data[i].type[0] !== 'other') {
+                    title += data[i].type + "|" + "<" + data[i].html_url + ">" + "|" + data[i].title + "|" + data[i].created_at + "|" + data[i].updated_at + "|" + data[i].closed_at + "|" +data[i].comments + "|" + data[i].state +"  \n";
+                    count++;
+                }
             } 
+            console.log("ALL: " + count);
             console.log(title);
+            count = 0;
+            for (var i in data) {
+                if (data[i].type[0] !== 'other' && data[i].state == "open" ) {
+                    title_open += data[i].type + "|" + "<" + data[i].html_url + ">" + "|" + data[i].title + "|" + data[i].created_at + "|" + data[i].updated_at + "|" + data[i].closed_at + "|" +data[i].comments + "|" + data[i].state +"  \n";
+                    count++;
+                }
+                    
+            } 
+            console.log("OPEN: " + count);
+            console.log(title_open); 
             // document.getElementById("list").innerHTML = title;
 
             //创建5行
